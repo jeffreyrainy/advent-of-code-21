@@ -1,0 +1,1 @@
+./build $1 && ./a.out < $1.txt
