@@ -1,0 +1,1 @@
+curl -b session=`more cookie` https://adventofcode.com/2021/day/$1/input > $1.txt
