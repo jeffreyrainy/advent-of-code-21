@@ -40,6 +40,8 @@ int main()
             d.words[d.words.size() - 1].push_back(word);
             d.numbers[d.numbers.size() - 1].push_back(std::atoi(word.c_str()));
 
+            d.allWords.insert(word);
+
         }
         d.raw.push_back(line2);
     }

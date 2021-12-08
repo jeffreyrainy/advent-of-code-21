@@ -10,6 +10,7 @@ public:
     std::vector<std::vector<int64_t>> numbers;
 
     std::vector<std::string> raw;
+    std::set<std::string> allWords;
 };
 
 void process(Data& data);
