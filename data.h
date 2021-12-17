@@ -16,6 +16,13 @@ public:
 void process(Data& data);
 std::map<char, std::string> getReplacements();
 
+template<typename U, typename V> std::ostream& operator<<(std::ostream& out, std::pair<U, V>& t)
+{
+    out << t.first << " " << t.second;
+
+    return out;
+}
+
 template<typename T> std::ostream& operator<<(std::ostream& out, std::vector<T>& t)
 {
     for(auto x: t)
