@@ -41,4 +41,12 @@ template<typename T> std::ostream& operator<<(std::ostream& out, std::set<T>& t)
     return out;
 }
 
+template<typename U, typename V> std::ostream& operator<<(std::ostream& out, std::map<U, V>& t)
+{
+    for(auto i: t)
+    {
+        out << i.first << ":" << i.second << ", ";
+    }
+    return out;
+}
 
