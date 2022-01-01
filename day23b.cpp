@@ -90,7 +90,6 @@ bool State<Depth>::ColReady(long col) const
 
 //todo: bump L0 to L1 and R0 to R1
 
-//todo: simplify from col to col
 template<long Depth>
 void State<Depth>::Simplify()
 {
@@ -112,9 +111,15 @@ void State<Depth>::Simplify()
                         inter[si] = '.';
                         changed = true;
                     }
-                    if (inter[si] != '.')
+                    else if (inter[si] != '.')
                     {
                         break;
+                    }
+                    if (tops[si + 1] != Depth && cols[si + 1][tops[si + 1]] == 'A' + col)
+                    {
+                        cols[col][--tops[col]] = 'A' + col;
+                        ++tops[si + 1];
+                        changed = true;
                     }
                 }
                 if (si == 3)
@@ -136,9 +141,15 @@ void State<Depth>::Simplify()
                         inter[si] = '.';
                         changed = true;
                     }
-                    if (inter[si] != '.')
+                    else if (inter[si] != '.')
                     {
                         break;
+                    }
+                    if (tops[si] != Depth && cols[si][tops[si]] == 'A' + col)
+                    {
+                        cols[col][--tops[col]] = 'A' + col;
+                        ++tops[si];
+                        changed = true;
                     }
                 }
                 if (si == -1)
