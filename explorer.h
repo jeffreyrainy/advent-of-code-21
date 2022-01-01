@@ -1,3 +1,5 @@
+#include <queue>
+
 template<typename S>
 class Explorer
 {
