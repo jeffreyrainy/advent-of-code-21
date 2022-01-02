@@ -304,7 +304,6 @@ vector<State<Depth>> State<Depth>::GetNext() const
 
                     ret.push_back(target);
                 }
-                // deal with two element stacked
             }
             // out to the left
             si = col - 1;
@@ -342,7 +341,6 @@ vector<State<Depth>> State<Depth>::GetNext() const
 
                     ret.push_back(target);
                 }
-                // deal with two element stacked
             }
         }
     }
