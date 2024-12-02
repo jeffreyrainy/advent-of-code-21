@@ -1,38 +1,60 @@
 #include <iostream>
 #include "data.h"
 
+using namespace std;
+
 std::map<char, std::string> getReplacements()
 {
     std::map<char, std::string> ret{};
     return ret;
 }
 
+bool check(const vector<int64_t>& row)
+{
+    int bad = 0;
+    for(int j = 0; j < row.size() - 1; j++)
+    {
+        if ((row[j] <= row[j+1]) ||
+            (row[j] - row[j + 1] > 3))
+        {
+            bad++;
+            break;
+        }
+    }
+    for(int j = 0; j < row.size() - 1; j++)
+    {
+        if ((row[j] >= row[j+1]) ||
+            (row[j] - row[j + 1] < -3))
+        {
+            bad++;
+            break;
+        }
+    }
+    return bad < 2;
+}
+
 void process(Data& data)
 {
-    int x = 0;
-    int y = 0;
-
-    int y2 = 0;
-    int aim = 0;
-    for(int i=0; i < data.numbers.size(); i++)
+    int count = 0;
+    int count2 = 0;
+    for(int i = 0; i < data.numbers.size(); i++)
     {
-        if (data.words[i][0] == "forward")
+        if (check(data.numbers[i]))
         {
-            x += data.numbers[i][1];
-            y2 += aim * data.numbers[i][1];
+            count++;
         }
-        if (data.words[i][0] == "up")
+        for(int j = 0; j < data.numbers[i].size(); j++)
         {
-            y -= data.numbers[i][1];
-            aim -= data.numbers[i][1];
-        }
-        if (data.words[i][0] == "down")
-        {
-            y += data.numbers[i][1];
-            aim += data.numbers[i][1];
+            auto r = data.numbers[i];
+            r.erase(r.begin() +  j);
+            if (check(r))
+            {
+                count2++;
+                break;
+            }
         }
     }
 
-    std::cout << x * y << std::endl;
-    std::cout << x * y2 << std::endl;
+    cout << count << endl;
+    cout << count2 << endl;
 }
