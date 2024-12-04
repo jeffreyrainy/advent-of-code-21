@@ -1,5 +1,8 @@
 #include <iostream>
+#include <cctype>
 #include "data.h"
+
+using namespace std;
 
 std::map<char, std::string> getReplacements()
 {
@@ -7,106 +10,82 @@ std::map<char, std::string> getReplacements()
     return ret;
 }
 
+int mul(const string& s, int pos)
+{
+    pos += 4;
+    int v[2] = {0, 0};
+    int cur = 0;
+
+    do
+    {
+        if (pos == s.length())
+        {
+            return 0;
+        }
+        else if (isdigit(s[pos]))
+        {
+            v[cur] = v[cur] * 10 + (s[pos] - '0');
+        }
+        else if (s[pos] == ',')
+        {
+            cur++;
+            if (cur > 1) return 0;
+        }
+        else if (s[pos] == ')')
+        {
+            return v[0] * v[1];
+        }
+        else
+        {
+            return 0;
+        }
+        pos++;
+    }
+    while (true);
+    return 0;
+}
+
 void process(Data& data)
 {
-    int epsilon = 0;
-    int gamma = 0;
-
-    for(int j=0; j < data.words[0][0].size(); j++)
+    int count = 0;
+    int count2 = 0;
+    int enabled = 1;
+    for(auto s:data.raw)
     {
-        int count = 0;
-        for(int i=0; i < data.words.size(); i++)
+        int pos = -1;
+        int pos1 = -1;
+        int pos2 = -1;
+
+        do
         {
-            if (data.words[i][0][j] == '1')
+            int was = pos;
+            pos = s.find("mul(", was + 1);
+            pos1 = s.find("do()", was + 1);
+            pos2 = s.find("don't()", was + 1);
+
+            if (pos > was && (pos1 < was || pos1 > pos) && (pos2 < was || pos2 > pos))
             {
-                count++;
+                int value = mul(s, pos);
+                count += value;
+                count2 += value * enabled;
+            }
+            else if (pos1 > was && (pos < was || pos > pos1) && (pos2 < was || pos2 > pos1))
+            {
+                enabled = 1;
+                pos = pos1;
+            }
+            else if (pos2 > was && (pos < was || pos > pos2) && (pos1 < was || pos1 > pos2))
+            {
+                enabled = 0;
+                pos = pos2;
             }
             else
             {
-                count--;
+                break;
             }
         }
-
-        gamma = gamma * 2 + (count >= 0);
-        epsilon = epsilon * 2 + (count < 0);
+        while(pos != -1);
     }
-    std::cout << gamma * epsilon <<  std::endl;
-
-    epsilon = 0;
-    gamma = 0;
-
-    auto copy = data.words;
-
-    for(int j=0; j < copy[0][0].size(); j++)
-    {
-        int count = 0;
-        for(int i=0; i < copy.size(); i++)
-        {
-            if (copy[i][0][j] == '1')
-            {
-                count++;
-            }
-            else
-            {
-                count--;
-            }
-        }
-
-        for(int i=0; i < copy.size();)
-        {
-            if (copy.size() > 1 && ((copy[i][0][j] == '1') != (count >= 0)))
-            {
-                copy[i][0] = copy[copy.size() - 1][0];
-                copy.resize(copy.size() - 1);
-            }
-            else
-            {
-                i++;
-            }
-        }
-    }
-
-    for(int j=0; j < copy[0][0].size(); j++)
-    {
-        gamma = gamma * 2 + (copy[0][0][j] == '1');
-    }
-
-    copy = data.words;
-    for(int j=0; j < copy[0][0].size(); j++)
-    {
-        int count = 0;
-        for(int i=0; i < copy.size(); i++)
-        {
-            if (copy[i][0][j] == '1')
-            {
-                count++;
-            }
-            else
-            {
-                count--;
-            }
-        }
-
-        for(int i=0; i < copy.size();)
-        {
-            if (copy.size() > 1 && ((copy[i][0][j] == '1') != (count < 0)))
-            {
-                copy[i][0] = copy[copy.size() - 1][0];
-                copy.resize(copy.size() - 1);
-            }
-            else
-            {
-                i++;
-            }
-        }
-    }
-
-    for(int j=0; j < copy[0][0].size(); j++)
-    {
-        epsilon = epsilon * 2 + (copy[0][0][j] == '1');
-    }
-
-    std::cout << gamma * epsilon <<  std::endl;
-
-
+    cout << count << endl;
+    cout << count2 << endl;
 }

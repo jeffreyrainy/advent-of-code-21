@@ -1,66 +1,144 @@
 #include <iostream>
 #include <map>
 #include <set>
+#include <cassert>
+
 #include "data.h"
 
-using std::map, std::multimap, std::string, std::cout, std::endl, std::vector;
+using namespace std;
 
 std::map<char, string> getReplacements()
 {
-    map<char, string> ret{{',', " "}};
+    return {};
+}
+
+vector<vector<pair<int, int>>> generate_paths_2(int x)
+{
+    vector<vector<pair<int, int>>> ret;
+    for(int i = 0; i < x - 2; i++)
+    {
+        for(int j = 0; j < x - 2; j++)
+        {
+            // horz
+            vector<pair<int, int>> path;
+            path.push_back({i, j}); // M
+            path.push_back({i, j + 2}); // M
+            path.push_back({i + 2, j}); // S
+            path.push_back({i + 2, j + 2}); // S
+            path.push_back({i + 1, j + 1}); // A
+            ret.push_back(path);
+
+            path.clear();
+            path.push_back({i, j}); // M
+            path.push_back({i + 2, j}); // M
+            path.push_back({i, j + 2}); // S
+            path.push_back({i + 2, j + 2}); // S
+            path.push_back({i + 1, j + 1}); // A
+            ret.push_back(path);
+        }
+    }
+    return ret;
+}
+
+vector<vector<pair<int, int>>> generate_paths(int x)
+{
+    vector<vector<pair<int, int>>> ret;
+    for(int i = 0; i < x - 3; i++)
+    {
+        for(int j = 0; j < x; j++)
+        {
+            // horz
+            vector<pair<int, int>> path;
+            for(int k  = 0; k < 4; k++)
+            {
+                path.push_back({i + k, j});
+            }
+            ret.push_back(path);
+            reverse(path.begin(), path.end());
+            ret.push_back(path);
+        }
+    }
+    for(int i = 0; i < x - 3; i++)
+    {
+        for(int j = 0; j < x; j++)
+        {
+            // vert
+            vector<pair<int, int>> path;
+            for(int k  = 0; k < 4; k++)
+            {
+                path.push_back({j,  i + k});
+            }
+            ret.push_back(path);
+            reverse(path.begin(), path.end());
+            ret.push_back(path);
+        }
+    }
+    for(int i = 0; i < x - 3; i++)
+    {
+        for(int j = 0; j < x - 3; j++)
+        {
+            vector<pair<int, int>> path;
+            for(int k  = 0; k < 4; k++)
+            {
+                path.push_back({i + k, j + k});
+            }
+            ret.push_back(path);
+            reverse(path.begin(), path.end());
+            ret.push_back(path);
+            path.clear();
+            for(int k  = 0; k < 4; k++)
+            {
+                path.push_back({(x - 1) - (i + k), j + k});
+            }
+            ret.push_back(path);
+            reverse(path.begin(), path.end());
+            ret.push_back(path);
+
+        }
+    }
+
     return ret;
 }
 
 void process(Data& data)
 {
-    auto draws = data.numbers[0];
-    multimap<long, long> drawImpact;
-    map<long, long> countsPerRowCol;
-    map<long, long> boardSum;
-    vector<bool> inPlay;
+    int x = data.raw[0].length();
+    int y = data.raw.size();
+    int count = 0;
+    int count2 = 0;
 
-    for(long l = 2; l < data.numbers.size(); l+=6) // skip 6 lines to go to next board
+    assert(x == y);
+
+    auto paths = generate_paths(x);
+    for(const auto & p:paths)
     {
-        for(long i = 0; i < 5; i++)
-        for(long j = 0; j < 5; j++)
+        if (data.raw[p[0].first][p[0].second] == 'X'  &&
+            data.raw[p[1].first][p[1].second] == 'M'  &&
+            data.raw[p[2].first][p[2].second] == 'A'  &&
+            data.raw[p[3].first][p[3].second] == 'S')
         {
-            // board * 10 + id for row or column
-            drawImpact.insert({data.numbers[l + i][j], (l-2)/6*10 + i});
-            drawImpact.insert({data.numbers[l + i][j], (l-2)/6*10 + 5 + j});
-            boardSum[(l-2)/6] += data.numbers[l + i][j];
-        }
-        inPlay.push_back(true);
-    }
-
-    for(long i=0; i < draws.size(); i++)
-    {
-        long n = draws[i];
-        for(auto it = drawImpact.lower_bound(n); it != drawImpact.upper_bound(n); it++)
-        {
-            long board = (it->second / 10);
-            countsPerRowCol[it->second]++;
-
-            if (inPlay[board] && countsPerRowCol[it->second] == 5)
-            {
-                inPlay[board] = false;
-                long sumSoFar = 0;
-
-                for(long j=0; j <= i; j++)
-                {
-                    int n2 = draws[j];
-                    for(auto it2 = drawImpact.lower_bound(n2); it2 != drawImpact.upper_bound(n2); it2++)
-                    {
-                        if (it2->second / 10 == board)
-                        {
-                            sumSoFar += n2;
-                            break;
-                        }
-                    }
-                }
-
-                cout << (boardSum[board] - sumSoFar) * n << endl;
-            }
+            count++;
         }
     }
-
+    paths = generate_paths_2(x);
+    for(const auto & p:paths)
+    {
+        if (data.raw[p[0].first][p[0].second] == 'M'  &&
+            data.raw[p[1].first][p[1].second] == 'M'  &&
+            data.raw[p[2].first][p[2].second] == 'S'  &&
+            data.raw[p[3].first][p[3].second] == 'S'  &&
+            data.raw[p[4].first][p[4].second] == 'A')
+        {
+            count2++;
+        }
+        else if (data.raw[p[0].first][p[0].second] == 'S'  &&
+            data.raw[p[1].first][p[1].second] == 'S'  &&
+            data.raw[p[2].first][p[2].second] == 'M'  &&
+            data.raw[p[3].first][p[3].second] == 'M'  &&
+            data.raw[p[4].first][p[4].second] == 'A')
+        {
+            count2++;
+        }
+    }
+    cout << count << " " << count2 << endl;
 }
